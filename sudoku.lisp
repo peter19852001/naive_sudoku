@@ -35,14 +35,14 @@
 (defmacro do-singletons (v &body body)
   (let ((i (gensym)))
     `(loop for ,i from 1 to 9
-	do (let ((,v (aref *singletons* ,i)))
-	     ,@body))))
+        do (let ((,v (aref *singletons* ,i)))
+             ,@body))))
 (defmacro do-singletons-of ((v s) &body body)
   (let ((se (gensym)))
     `(let ((,se ,s))
        (do-singletons ,v
-	 (when (subset? ,v ,se)
-	   ,@body)))))
+         (when (subset? ,v ,se)
+           ,@body)))))
 
 (defun set-size (s)
   (let ((n 0))
@@ -56,7 +56,7 @@
   (let ((nb (empty-board)))
     (dotimes (i 9)
       (dotimes (j 9)
-	(setf (aref nb i j) (aref b i j))))
+        (setf (aref nb i j) (aref b i j))))
     nb))
 (defun list-to-board (ns)
   ;; ns is a list of 0-9 which is the initial content of the board arranged in row by row, where 0 represents empty small square.
@@ -64,26 +64,26 @@
   (let ((b (empty-board)))
     (dotimes (i 9)
       (dotimes (j 9)
-	(let ((n (pop ns)))
-	  (setf (aref b i j) (if (= n 0) *universal-set* (singleton n))))))
+        (let ((n (pop ns)))
+          (setf (aref b i j) (if (= n 0) *universal-set* (singleton n))))))
     b))
 
 (defun print-raw-board (b)
   (let ((sep1 "+---+---+---+")
-	(sep2 "+===+===+===+"))
+        (sep2 "+===+===+===+"))
     (labels ((pr-sep (sp)
-	       (dotimes (i 3) (format t "~a" sp))
-	       (terpri))
-	     (pr-cell (n) (format t "| ~a " (if n n #\space)))
-	     (pr-row (i)
-	       (dotimes (j 9)
-		 (pr-cell (singleton-num (aref b i j)))
-		 (if (or (= j 2) (= j 5)) (format t "|")))
-	       (format t "|~%")))
+               (dotimes (i 3) (format t "~a" sp))
+               (terpri))
+             (pr-cell (n) (format t "| ~a " (if n n #\space)))
+             (pr-row (i)
+               (dotimes (j 9)
+                 (pr-cell (singleton-num (aref b i j)))
+                 (if (or (= j 2) (= j 5)) (format t "|")))
+               (format t "|~%")))
       ;;
       (dotimes (i 9)
-	(pr-sep (if (= 0 (mod i 3)) sep2 sep1))
-	(pr-row i))
+        (pr-sep (if (= 0 (mod i 3)) sep2 sep1))
+        (pr-row i))
       (pr-sep sep2))))
 
 (defun print-board (b)
@@ -92,37 +92,37 @@
 (defun valid-board (b)
   ;; returns nil if invalid. Returns 'valid if valid but not complete, and returns 'complete if valid and complete
   (let ((is-complete t)
-	(c-set *empty-set*))
+        (c-set *empty-set*))
     (labels ((prepare-check () (setf c-set *empty-set*))
-	     (entry-not-ok? (s)
-	       (and (singleton? s)
-		    (or (subset? s c-set)
-			(progn (setf c-set (union-set s c-set))
-			       nil))))
-	     (permutation1-9? () (= c-set *universal-set*)))
+             (entry-not-ok? (s)
+               (and (singleton? s)
+                    (or (subset? s c-set)
+                        (progn (setf c-set (union-set s c-set))
+                               nil))))
+             (permutation1-9? () (= c-set *universal-set*)))
       ;; rows
       (dotimes (i 9)
-	(prepare-check)
-	(dotimes (j 9)
-	  (if (entry-not-ok? (aref b i j))
-	      (return-from valid-board nil)))
-	(unless (permutation1-9?) (setf is-complete nil)))
+        (prepare-check)
+        (dotimes (j 9)
+          (if (entry-not-ok? (aref b i j))
+              (return-from valid-board nil)))
+        (unless (permutation1-9?) (setf is-complete nil)))
       ;; columns
       (dotimes (j 9)
-	(prepare-check)
-	(dotimes (i 9)
-	  (if (entry-not-ok? (aref b i j))
-	      (return-from valid-board nil)))
-	(unless (permutation1-9?) (setf is-complete nil)))
+        (prepare-check)
+        (dotimes (i 9)
+          (if (entry-not-ok? (aref b i j))
+              (return-from valid-board nil)))
+        (unless (permutation1-9?) (setf is-complete nil)))
       ;; squares
       (dolist (sq-x '(0 3 6))
-	(dolist (sq-y '(0 3 6))
-	  (prepare-check)
-	  (dotimes (i 3)
-	    (dotimes (j 3)
-	      (if (entry-not-ok? (aref b (+ sq-x i) (+ sq-y j)))
-		  (return-from valid-board nil))))
-	  (unless (permutation1-9?) (setf is-complete nil))))
+        (dolist (sq-y '(0 3 6))
+          (prepare-check)
+          (dotimes (i 3)
+            (dotimes (j 3)
+              (if (entry-not-ok? (aref b (+ sq-x i) (+ sq-y j)))
+                  (return-from valid-board nil))))
+          (unless (permutation1-9?) (setf is-complete nil))))
       ;;
       (if is-complete 'complete 'valid))))
 
@@ -181,50 +181,50 @@
 (defparameter *test-hard-b* (list-to-board *test-hard*))
 (defparameter *test-evil-b* (list-to-board *test-evil*))
 ;; (print-board *test-easy-b*)
-; +===+===+===++===+===+===++===+===+===+
-; |   |   |   || 3 |   | 5 ||   | 6 |   |
-; +---+---+---++---+---+---++---+---+---+
-; | 3 |   | 7 || 6 |   | 4 ||   |   |   |
-; +---+---+---++---+---+---++---+---+---+
-; |   | 8 |   ||   |   | 9 || 3 |   | 4 |
-; +===+===+===++===+===+===++===+===+===+
-; | 9 |   |   || 1 | 3 |   ||   |   | 8 |
-; +---+---+---++---+---+---++---+---+---+
-; |   | 6 | 4 ||   | 2 |   || 9 | 7 |   |
-; +---+---+---++---+---+---++---+---+---+
-; | 8 |   |   ||   | 4 | 7 ||   |   | 1 |
-; +===+===+===++===+===+===++===+===+===+
-; | 2 |   | 5 || 8 |   |   ||   | 9 |   |
-; +---+---+---++---+---+---++---+---+---+
-; |   |   |   || 7 |   | 3 || 2 |   | 5 |
-; +---+---+---++---+---+---++---+---+---+
-; |   | 9 |   || 4 |   | 2 ||   |   |   |
-; +===+===+===++===+===+===++===+===+===+
+;; +===+===+===++===+===+===++===+===+===+
+;; |   |   |   || 3 |   | 5 ||   | 6 |   |
+;; +---+---+---++---+---+---++---+---+---+
+;; | 3 |   | 7 || 6 |   | 4 ||   |   |   |
+;; +---+---+---++---+---+---++---+---+---+
+;; |   | 8 |   ||   |   | 9 || 3 |   | 4 |
+;; +===+===+===++===+===+===++===+===+===+
+;; | 9 |   |   || 1 | 3 |   ||   |   | 8 |
+;; +---+---+---++---+---+---++---+---+---+
+;; |   | 6 | 4 ||   | 2 |   || 9 | 7 |   |
+;; +---+---+---++---+---+---++---+---+---+
+;; | 8 |   |   ||   | 4 | 7 ||   |   | 1 |
+;; +===+===+===++===+===+===++===+===+===+
+;; | 2 |   | 5 || 8 |   |   ||   | 9 |   |
+;; +---+---+---++---+---+---++---+---+---+
+;; |   |   |   || 7 |   | 3 || 2 |   | 5 |
+;; +---+---+---++---+---+---++---+---+---+
+;; |   | 9 |   || 4 |   | 2 ||   |   |   |
+;; +===+===+===++===+===+===++===+===+===+
 
 ;;; Constraint propagation
 (defun propagate-constraints (nb cells-to-do)
   (labels ((limit-cell-at (x y choice-to-remove)
-	     (let ((old (aref nb x y)))
-	       (if (singleton? old)
-		   (if (= old choice-to-remove) (return-from propagate-constraints nil))
-		   (if (singleton? (setf (aref nb x y) (difference-set old choice-to-remove)))
-		       (push (cons x y) cells-to-do)))))
-	   (propagate-at (x y)
-	     ;; cell are (x,y) is already singleton, propagate it
-	     (let ((w (aref nb x y))
-		   (sq-x (- x (mod x 3)))
-		   (sq-y (- y (mod y 3))))
-	       (dotimes (i 9) (if (/= i x) (limit-cell-at i y w))) ; row
-	       (dotimes (j 9) (if (/= j y) (limit-cell-at x j w))) ; column
-	       (dotimes (i 3) ; large square
-		 (dotimes (j 3)
-		   (if (or (/= (+ sq-x i) x) (/= (+ sq-y j) y))
-		       (limit-cell-at (+ sq-x i) (+ sq-y j) w)))))))
-      ;;
-      (loop while cells-to-do
-	 do (let ((cell (pop cells-to-do)))
-	      (propagate-at (car cell) (cdr cell)))
-	 finally (return nb))))
+             (let ((old (aref nb x y)))
+               (if (singleton? old)
+                   (if (= old choice-to-remove) (return-from propagate-constraints nil))
+                   (if (singleton? (setf (aref nb x y) (difference-set old choice-to-remove)))
+                       (push (cons x y) cells-to-do)))))
+           (propagate-at (x y)
+             ;; cell are (x,y) is already singleton, propagate it
+             (let ((w (aref nb x y))
+                   (sq-x (- x (mod x 3)))
+                   (sq-y (- y (mod y 3))))
+               (dotimes (i 9) (if (/= i x) (limit-cell-at i y w))) ; row
+               (dotimes (j 9) (if (/= j y) (limit-cell-at x j w))) ; column
+               (dotimes (i 3) ; large square
+                 (dotimes (j 3)
+                   (if (or (/= (+ sq-x i) x) (/= (+ sq-y j) y))
+                       (limit-cell-at (+ sq-x i) (+ sq-y j) w)))))))
+    ;;
+    (loop while cells-to-do
+       do (let ((cell (pop cells-to-do)))
+            (propagate-at (car cell) (cdr cell)))
+       finally (return nb))))
 
 (defun put-on-board (b i j s)
   ;; assuming the board b is valid
@@ -240,8 +240,8 @@
   (let ((cells-to-do nil))
     (dotimes (i 9)
       (dotimes (j 9)
-	(if (singleton? (aref b i j))
-	    (push (cons i j) cells-to-do))))
+        (if (singleton? (aref b i j))
+            (push (cons i j) cells-to-do))))
     (propagate-constraints b cells-to-do)))
 ;;
 (defparameter *test-easy-b-p* (init-propagate-board (copy-board *test-easy-b*)))
@@ -252,11 +252,11 @@
 (defun cell-order-to-try (b)
   ;; try those with less choices first, exclude those singletons
   (let ((v (make-array 10 :initial-element nil))
-	(r nil))
+        (r nil))
     (dotimes (i 9)
       (dotimes (j 9)
-	(let ((c-size (set-size (aref b i j))))
-	  (if (> c-size 1) (push (cons i j) (aref v c-size))))))
+        (let ((c-size (set-size (aref b i j))))
+          (if (> c-size 1) (push (cons i j) (aref v c-size))))))
     ;; collect them
     (loop for i from 9 downto 2
        do (setf r (nconc (aref v i) r)))
@@ -266,15 +266,15 @@
   (if (null cells-to-try)
       (if (eq 'complete (valid-board b)) b nil)
       (let* ((cell (car cells-to-try))
-	     (i (car cell))
-	     (j (cdr cell))
-	     (s (aref b i j)))
-	(if (singleton? s)
-	    (try-cells b (cdr cells-to-try))
-	    (do-singletons-of (x s)
-	      (let* ((nb (put-on-board b i j x))
-		     (res-b (and nb (try-cells nb (cdr cells-to-try)))))
-		(if res-b (return-from try-cells res-b))))))))
+             (i (car cell))
+             (j (cdr cell))
+             (s (aref b i j)))
+        (if (singleton? s)
+            (try-cells b (cdr cells-to-try))
+            (do-singletons-of (x s)
+              (let* ((nb (put-on-board b i j x))
+                     (res-b (and nb (try-cells nb (cdr cells-to-try)))))
+                (if res-b (return-from try-cells res-b))))))))
 ;;
 (defun solve-sudoku (b)
   ;; b is just a board, possibly without initial propagation
@@ -289,6 +289,13 @@
     (print-board b)
     (format t "~%Try to solve.~%")
     (print-board (solve-sudoku b))))
+
+;; this is the main convenient function to use.
+;; e.g.
+;; (solve-sudoku-list *test-easy*)
+;; (solve-sudoku-list *test-medium*)
+;; (solve-sudoku-list *test-hard*)
+;; (solve-sudoku-list *test-evil*)
 ;;;
 
 
